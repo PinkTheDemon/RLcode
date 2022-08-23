@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 class TrainManager():
     
-    def __init__(self, env, episodes = 2000, buffer_size = 5000, batch_size = 32, num_steps = 4,
+    def __init__(self, env, episodes = 3000, buffer_size = 5000, batch_size = 32, num_steps = 4,
             lr = 0.0001, gamma = 0.9, epsilon = 0.1, replay_start_size = 200, update_target_step = 32) :
         self.env = env
         self.episodes = episodes
@@ -80,13 +80,13 @@ class TrainManager():
         for e in range(self.episodes) :
             ep_reward = self.train_episode()
             print('Episode %s: reward = %.1f'%(e, ep_reward))
-            '''plot'''
+            # '''plot'''
             e_list.append(e)
             reward_list.append(ep_reward)
-            plt.xlim(max(0, e-200), e)
-            plt.plot(e_list, reward_list, color = "black", ls = '-')
-            plt.pause(0.1)
-            '''/plot'''
+            # plt.xlim(max(0, e-200), e)
+            # plt.plot(e_list, reward_list, color = "black", ls = '-')
+            # plt.pause(0.1)
+            # '''/plot'''
 
         test_reward = self.test_episode()
         print('test_reward = %.1f'%(test_reward))

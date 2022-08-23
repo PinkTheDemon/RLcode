@@ -11,14 +11,18 @@ import matplotlib.pyplot as plt
 # 双Q网络改进并不明显，而且统一的问题是训练过程抖动很大，探索出了高奖励值的动作并没有保持下来
 # 好像说replay buffer直接丢掉最老的经验是不太好的做法，因为这样训练到后面智能体会忘掉环境刚开始的经验
 # 可能需要按优先级来排序然后删
+# 用了PER之后，它所需要的附加操作真的非常耗时
 
 
 class TrainManager():
     
-    def __init__(self, env, episodes = 2000, buffer_size = 5000, batch_size = 32, num_steps = 4,
-            lr = 0.0001, gamma = 0.9, epsilon = 0.1, replay_start_size = 200, update_target_step = 32) :
+    def __init__(self, env, episodes = 2000, buffer_size = 1000, batch_size = 32, num_steps = 4, e_decay_episode = 1,
+            lr = 0.0001, gamma = 0.9, epsilon = 1.0, replay_start_size = 100, update_target_step = 32, epsilon_decay = 0.001) :
         self.env = env
         self.episodes = episodes
+        self.epsilon = epsilon
+        self.e_decay_episode = e_decay_episode
+        self.epsilon_decay = epsilon_decay
         n_obs = env.observation_space.shape[0]
         n_act = env.action_space.n
         q_func = modules.MLP(n_obs, n_act)
@@ -82,6 +86,10 @@ class TrainManager():
         for e in range(self.episodes) :
             ep_reward = self.train_episode()
             print('Episode %s: reward = %.1f'%(e, ep_reward))
+            if e % self.e_decay_episode == 0 :
+                self.epsilon -= self.epsilon_decay
+                self.epsilon = max(0.005, self.epsilon)
+                self.agent.epsilon_decay(self.epsilon)
             # '''plot'''
             e_list.append(e)
             reward_list.append(ep_reward)

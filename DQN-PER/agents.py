@@ -1,3 +1,4 @@
+from hashlib import pbkdf2_hmac
 import numpy as np 
 import torch
 import torchUtils
@@ -5,6 +6,11 @@ import copy
 
 # 状态空间为0到多少的整数，动作空间也是0到多少的整数
 # 所以有些写法就没管状态动作和数字的区别
+
+def exp(batch) :
+    for i in range(len(batch)) :
+        batch[i] = 1 - np.exp(batch[i])
+        return batch
 
 class DQNAgent() :
     def __init__(self, q_func, optimizer, n_act, replay_buffer, batch_size, replay_start_size, update_target_step, epsilon, gamma) :
@@ -44,18 +50,24 @@ class DQNAgent() :
             action = self.predict(obs)
         return action
 
-    def learn_batch(self, obs_batch, action_batch, reward_batch, next_obs_batch, done_batch, prior_batch) :
+    def learn_batch(self, obs_batch, action_batch, reward_batch, next_obs_batch, done_batch, prior_batch, no_batch, weight_batch) :
         # 双Q网络，当前网络选择最大的动作，目标网络求该动作对应的动作价值
         pred_Vs = self.q_func(obs_batch)
         action_onehot = torchUtils.one_hot(action_batch, self.n_act)
         predictQ = (pred_Vs*action_onehot).sum(dim=1)
+        predictQ *= np.sqrt(weight_batch)
         nextaction_batch = self.predict_batch(next_obs_batch)
         nextaction_onehot = torchUtils.one_hot(nextaction_batch, self.n_act)
         targetQ = reward_batch + (1 - done_batch) * self.gamma * (self.targetQ(next_obs_batch) * nextaction_onehot).sum(1)
+        targetQ *= np.sqrt(weight_batch)
 
-        self.rb.update_prior(prior_list) # 更新prior
+        prior_batch = torch.abs(predictQ - targetQ)
+        prior_batch = exp(prior_batch)
+        self.rb.update_prior(prior_batch, no_batch) # 更新prior
         # 这样更新好像很困难，参数无法完整地传入传出，可能需要用别的方法，也可能用SumTree当做replay buffer而非deque
         # 感觉PER用SumTree实现起来更方便，还是改一下吧
+        # 但是只存优先级没必要用SumTree啊，该难修改还是难以修改
+        # SumTree优势在于它采样出来的结果是序号，知道对应样本的序号之后就方便修改了，那如果我deque也用序号呢
         
         # 更新参数
         self.optimizer.zero_grad()
@@ -81,3 +93,6 @@ class DQNAgent() :
     def updateTargetQ(self) :
         for target_param, param in zip(self.targetQ.parameters(), self.q_func.parameters()) :
             target_param.data.copy_(param.data)
+
+    def epsilon_decay(self, epsilon) :
+        self.epsilon = epsilon
