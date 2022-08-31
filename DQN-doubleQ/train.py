@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 
 class TrainManager():
     
-    def __init__(self, env, episodes = 3000, buffer_size = 5000, batch_size = 32, num_steps = 4,
-            lr = 0.0001, gamma = 0.9, epsilon = 0.1, replay_start_size = 200, update_target_step = 32) :
+    def __init__(self, env, episodes = 3500, buffer_size = 5000, batch_size = 32, num_steps = 4,
+            lr = 0.0001, gamma = 0.99, epsilon = 0.1, replay_start_size = 200, update_target_step = 10) :
         self.env = env
         self.episodes = episodes
         n_obs = env.observation_space.shape[0]
@@ -43,6 +43,11 @@ class TrainManager():
         while True :
             action = self.agent.act(obs) # 根据下一状态预测下一动作
             next_obs, reward, done, _ = self.env.step(action) # 前进一步
+
+            # # 尝试修改奖励值看能不能提升训练性能
+            # if reward == 0 :
+            #     reward = 10000
+            # # 结果是不行的
 
             # 更新Q表格
             self.agent.learn(obs, action, reward, next_obs, done)

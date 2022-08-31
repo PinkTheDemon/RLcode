@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 
 class TrainManager():
     
-    def __init__(self, env, episodes = 2000, buffer_size = 1000, batch_size = 32, num_steps = 4, e_decay_episode = 1,
-            lr = 0.0001, gamma = 0.9, epsilon = 1.0, replay_start_size = 100, update_target_step = 32, epsilon_decay = 0.001) :
+    def __init__(self, env, episodes = 2000, buffer_size = 5000, batch_size = 32, num_steps = 4, e_decay_episode = 1,
+            lr = 0.0001, gamma = 0.95, epsilon = 1.0, replay_start_size = 100, update_target_step = 32, epsilon_decay = 0.001) :
         self.env = env
         self.episodes = episodes
         self.epsilon = epsilon
