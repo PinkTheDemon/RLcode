@@ -111,3 +111,23 @@ gamma0.99，这次收敛情况不好感觉真的有可能是因为replay buffer�
 改为10步，训练效果还可以
 
 ![](DQN-doubleQ/doubleQ9.png)
+
+加了探索衰减，感觉不如原来了
+
+![](DQN-doubleQ/doubleQ10.png)
+
+把探索衰减去掉了
+
+![](DQN-doubleQ/doubleQ11.png)
+
+到底是什么原因？
+
+<img src="DQN-PER/PERpara9.png" alt="img"/>
+
+![](DQN-PER/PERresult9.png)
+
+doubleQ目前收敛最快的，且收敛效果也比较好
+
+![](DQN-doubleQ/doubleQpara12.png)
+
+![](DQN-doubleQ/doubleQ12.png)

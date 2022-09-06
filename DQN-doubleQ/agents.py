@@ -71,3 +71,6 @@ class DQNAgent() :
     def updateTargetQ(self) :
         for target_param, param in zip(self.targetQ.parameters(), self.q_func.parameters()) :
             target_param.data.copy_(param.data)
+
+    def epsilon_decay(self, epsilon) :
+        self.epsilon = epsilon
