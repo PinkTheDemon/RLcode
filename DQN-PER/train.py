@@ -25,7 +25,7 @@ class TrainManager():
         self.epsilon_decay = epsilon_decay
         n_obs = env.observation_space.shape[0]
         n_act = env.action_space.n
-        q_func = modules.MLP(n_obs, n_act)
+        q_func = modules.MLP(n_obs, n_act)  # !!!这里错了吧，Q函数怎么是S到A的映射呢，应该是SA到Q(标量)的映射吧!!!
         optimizer = torch.optim.AdamW(q_func.parameters(), lr=lr)
         rb = replay_buffer.ReplayBuffer(buffer_size, num_steps)
         self.agent = agents.DQNAgent(
